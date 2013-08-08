@@ -35,18 +35,19 @@ def read_host_port(filepath,splitword=':'):
     return hostinfo    
 
 if __name__ == "__main__":
-    hostlist = []
-    for hostinfo in read_host_port('/home/lixuze/proxy.dat'):
-        isvalue = True
-        for i in range(3):
-            if not open_url('http://open.weibo.com/',hostinfo[0],hostinfo[1],"新浪微博",1):
-                isvalue = False
-        if isvalue:
-            fileHandle = open("proxysave.dat","a")
-            fileHandle.write("%s:%s\n" % (hostinfo[0],hostinfo[1]))
-            fileHandle.close()
-            hostlist.append(hostinfo)
-    print hostlist
+    print open_url('http://open.weibo.com/', "218.92.227.165","12945","新浪微博" , 1)
+#     hostlist = []
+#     for hostinfo in read_host_port('/home/lixuze/proxy.dat'):
+#         isvalue = True
+#         for i in range(3):
+#             if not open_url('http://open.weibo.com/',hostinfo[0],hostinfo[1],"新浪微博",1):
+#                 isvalue = False
+#         if isvalue:
+#             fileHandle = open("proxysave.dat","a")
+#             fileHandle.write("%s:%s\n" % (hostinfo[0],hostinfo[1]))
+#             fileHandle.close()
+#             hostlist.append(hostinfo)
+#     print hostlist
                 
     
     
