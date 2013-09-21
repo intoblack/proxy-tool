@@ -46,9 +46,13 @@ class ProxySave(threading.Thread):
     __saveproxy = {}
     time_format = '%Y-%m-%d-%H-%M-%S'
     savepath = ''
-    def __init__(self,savepath , delay  = 10):
+    def __init__(self,savepath = None, delay  = 10):
         threading.Thread.__init__(self)
-        if os.path.isdir(savepath) and os.path.exists(savepath):
+        if savepath == None:
+            if not os.path.exists('./data/'):
+                os.mkdir('./data/')
+            self.savepath = './data/proxy.dat'
+        elif os.path.isdir(savepath) and os.path.exists(savepath):
             self.savepath = savepath + datetime.datetime.strftime(self.time_format) + '.proxy'
         elif os.path.isfile(savepath):
             self.savepath = savepath
@@ -62,7 +66,7 @@ class ProxySave(threading.Thread):
             self.delay = delay
             
     
-    def save(self,data):
+    def save_data(self,data):
         util.append_write(self.savepath, util.make_contents(data))
     
     def run(self):
@@ -71,10 +75,9 @@ class ProxySave(threading.Thread):
             savedata = [val for val in ProxyData.getInstance().get() if val not in self.__saveproxy.keys()]
             if len(savedata) == 0:
                 continue
-            self.save(savedata)
-            
             for proxy in savedata:
                 self.__saveproxy[proxy] = 1
+            self.save_data(savedata)
             
             
 

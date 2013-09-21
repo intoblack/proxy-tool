@@ -45,7 +45,7 @@ class ProxySpider(threading.Thread):
                 searchword = self.keyword.pop()
                 url = self.baidu_search(searchword)
                 if not UrlPool.getInstance().exist(url):
-                    TaskQueue.getInstance().put((url,-1))
+                    TaskQueue.getInstance().put((url,-10))
 #                 ProxyData.getInstance().put(self.proxy_parser(html))
             time.sleep(1)
 

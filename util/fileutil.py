@@ -35,8 +35,8 @@ def remove_dir_down(path):
 
 
 def _write(path,contents,mode):
-    if not os.path.isfile(path):
-        raise NoFilePathException,path
+#    if not os.path.isfile(path):
+#        raise NoFilePathException,path
     with open(path,mode) as f:
         if isinstance(contents, list):
             [f.write(line) for line in contents]
