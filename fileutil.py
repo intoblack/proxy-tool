@@ -1,7 +1,7 @@
 #coding=utf-8
 
 import os
-import SpiderException
+from NewsCrawlerException import NewsCrawlerException
 
 #文件操作类
 #    
@@ -13,7 +13,7 @@ import SpiderException
 def _write(path,contents,mode):
     filehandle = open(path,mode)
     if not contents:
-        raise SpiderException("DATA_IS_NONE",121)
+        raise NewsCrawlerException("DATA_IS_NONE",121)
     if isinstance(contents, list):
         for content in contents:
             filehandle.write(content)
@@ -44,15 +44,15 @@ def make_dict_data(pattern,dictdata):
         try:
             restr = pattern % dictdata
         except Exception,e:
-            raise SpiderException("NO_RIGHT_PATTERN_%s" % e,109)
+            raise NewsCrawlerException("NO_RIGHT_PATTERN_%s" % e,109)
         return restr
     else:
-        raise SpiderException("DATA_NO_DICT" ,110)
+        raise NewsCrawlerException("DATA_NO_DICT" ,110)
     
 
 def _read(filepath):
     if not (os.path.isfile(filepath) and os.path.exists(filepath)):
-        raise SpiderException("READ_FILE_WRONG_%s" % filepath , 111) 
+        raise NewsCrawlerException("READ_FILE_WRONG_%s" % filepath , 111) 
     filehandle = open(filepath,"r")
     contents = filehandle.readlines()
     filehandle.close()

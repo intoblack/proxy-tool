@@ -40,6 +40,7 @@ class ProxySave(threading.Thread):
     def __init__(self,savepath):
         threading.Thread.__init__(self)
         self.savepath = savepath
+        self.failcount = 100
     
     def save(self,data):
         filehandle = open(self.savepath , 'a')
