@@ -4,7 +4,7 @@
 import urllib2
 from urlpool import UrlPool 
 from UrlQueue import TaskQueue
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 import re
 import threading
 from ProxyData import ProxyData
@@ -13,8 +13,8 @@ import time
 
 class Crawler(threading.Thread):
     proxyregx = re.compile("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(<SCRIPT type=text/javascript>document.write\(\":\"(\+[a-z]?)+\)</SCRIPT>|:[0-9]{1,}){1}")
-#     proxyregx = re.compile("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(<SCRIPT type=text/javascript>document.write\(\":\"(.+?)</SCRIPT>|:[0-9]{1,}){1}")
     alive = True
+
 
     def __init__(self , level = 1 , retrycount = 300 ):
         threading.Thread.__init__(self)
@@ -40,7 +40,7 @@ class Crawler(threading.Thread):
         '''
         soup = BeautifulSoup(html)
         linklist = []
-        for link in soup.find_all("a"):
+        for link in soup.findAll('a'):
             link = link.get("href")
             if link:
                 linklist.append((self.make_absolute_url(rooturl,link),level))
@@ -53,13 +53,7 @@ class Crawler(threading.Thread):
             return urljoin(base_url, relative_url)
         else:
             return relative_url
-#     def absurl(self,url , rooturl):
-#         if url.startswith("href"):
-#             url = url.split("\"")[1]
-#         if not url.startswith('http://') and url.startswith('/'):
-#             return rooturl + url.lstrip("/")
-#         return url
-#     
+
 
     def run(self):
         while self.alive:

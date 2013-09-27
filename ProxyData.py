@@ -3,6 +3,11 @@
 
 import threading
 import time
+import os
+import datetime
+from util.ProxyException import NoFilePathException
+import util.fileutil as util
+
 
 class ProxyData(object):
     
@@ -34,29 +39,46 @@ class ProxyData(object):
             ProxyData.__lock.release()
         return ProxyData.__instance
 
+
+
 class ProxySave(threading.Thread):
     
     __saveproxy = {}
-    def __init__(self,savepath):
+    time_format = '%Y-%m-%d-%H-%M-%S'
+    savepath = ''
+    def __init__(self,savepath = None, delay  = 10):
         threading.Thread.__init__(self)
-        self.savepath = savepath
-        self.failcount = 100
+        if savepath == None:
+            if not os.path.exists('./data/'):
+                os.mkdir('./data/')
+            self.savepath = './data/proxy.dat'
+        elif os.path.isdir(savepath) and os.path.exists(savepath):
+            self.savepath = savepath + datetime.datetime.strftime(self.time_format) + '.proxy'
+        elif os.path.isfile(savepath):
+            self.savepath = savepath
+        else:
+            raise NoFilePathException,savepath
+        if isinstance(delay, int):
+            if delay <= 0 :
+                self.delay = 10
+            self.delay = delay
+        else:
+            self.delay = delay
+            
+
     
-    def save(self,data):
-        filehandle = open(self.savepath , 'a')
-        for line in data:
-            filehandle.write(line+"\n")
-        filehandle.close()
+    def save_data(self,data):
+        util.append_write(self.savepath, util.make_contents(data))
     
     def run(self):
         while True:
-            time.sleep(10)
+            time.sleep(self.delay)
             savedata = [val for val in ProxyData.getInstance().get() if val not in self.__saveproxy.keys()]
             if len(savedata) == 0:
                 continue
-            self.save(savedata)
             for proxy in savedata:
                 self.__saveproxy[proxy] = 1
+            self.save_data(savedata)
             
             
 

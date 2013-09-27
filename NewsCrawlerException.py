@@ -4,7 +4,7 @@ Created on 2013-6-26
 @author: lixuze
 '''
 
-class MyClass(Exception):
+class NewsCrawlerException(Exception):
     '''
     classdocs
     '''

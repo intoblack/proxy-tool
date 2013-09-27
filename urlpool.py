@@ -41,6 +41,7 @@ class UrlPool(object):
             print '%s\t\t%s' % (_key,_val)
             
 class mqueue(LifoQueue):
+    
     def _put(self, item):
         if isinstance(item, list):
             self.queue.extend(item)
