@@ -7,127 +7,104 @@ import sys
 
 
 
-class ThreadPoolTask(threading.Thread):
+import sys
+if sys.version_info[0] > 2:
+    import Queue
+else:
+    import Queue as queue
+import threading
+from collections import deque
 
-    def __init__(self, queue, name = ""):
+class Worker(threading.Thread):
+    """Thread executing tasks from a given tasks queue"""
+    def __init__(self, tasks, send_item, num_threads):
         threading.Thread.__init__(self)
-        self.kill = False
-        self.queue = queue
-        self.name = name
-        self._isRunning = False
-        self._waitToKill = False
+        self.send_item = send_item
+        self.tasks = tasks
+        self.num_threads = num_threads
+        self.daemon = True
+        self.start()
 
     def run(self):
-        while not self.kill:
-            self.isRunning = False
-            try:
-                callback, args = self.queue.get(timeout = 0.1)
-                self.isRunning = True
+        while True:
+            func, args, kargs = self.tasks.get()
+            if self.send_item == True:
                 try:
-                    callback(*args)
-                except Exception, e:
-                    print >> sys.stderr,"ThreadPoolTask [%s] :" % self.name, e
-            except:
-                pass
-            if self._waitToKill and not self.isRunning:
-                self.kill = True
-
-    def stop(self):
-        self.kill = True
-
-    def waitAndStop(self):
-        self._waitToKill = True
-
-    def isKilled(self):
-        return self.kill
+                    item = self.num_threads.popleft()
+                    func(item, *args, **kargs)
+                except Exception as e:
+                    print(e)
+            if self.send_item == False:
+                try:
+                    func(*args, **kargs)
+                except Exception as e:
+                    print(e)
+            self.tasks.task_done()
+            if self.send_item == True:
+                self.num_threads.append(item)
 
 class ThreadPool:
-
-    def __init__(self, pool_size):
+    """Pool of threads consuming tasks from a queue"""
+    def __init__(self, num_threads, send_item=False, min_pool=0, max_pool=0, queue_type='fifo'):
+        self.priority_queue = False
+        min_pool = int(round(min_pool))
+        max_pool = int(round(max_pool))
+        if max_pool != 0:
+            if min_pool > max_pool:
+                min_pool = max_pool
+        iterable_list = [dict, tuple, set]
+        number_list = [float, int]
+        """Item in list is sent as first argument to function"""
+        if type(num_threads) in iterable_list:
+            num_threads = deque(num_threads)
+        elif type(num_threads) == str:
+            num_threads = deque([num_threads])
+        elif type(num_threads) in number_list:
+            if num_threads < 1:
+                num_threads = 1
+            num_threads = deque(list(range(int(num_threads))))
+        elif type(num_threads) is bool:
+            if num_threads == False:
+                num_threads = deque([False])
+            elif num_threads == True:
+                num_threads = deque([True])
+        if type(num_threads) != deque:
+            try: 
+                iter(num_threads)
+                num_threads = deque(num_threads)
+            except TypeError as te:
+                print(num_threads, ' is not iterable')
+                raise
+        pool_size = len(num_threads)
+        if pool_size < min_pool and min_pool != 0:
+            multiply_list = int(round((float(min_pool) / pool_size) + 0.5))
+            pool_size = int(min_pool)
+            num_threads = deque(list(num_threads))
+            new_num_threads = deque()
+            for _ in range(multiply_list):
+                for i in num_threads:
+                    new_num_threads.append(i)
+            num_threads = new_num_threads
+        if pool_size > max_pool and max_pool != 0:
+            pool_size = int(max_pool)
+        if queue_type == 'fifo':
+            self.tasks = queue.Queue(pool_size)
+        elif queue_type == 'lifo':
+            self.tasks = queue.LifoQueue(pool_size)
+        for _ in range(pool_size):
+            Worker(self.tasks, send_item, num_threads)
         self.pool_size = pool_size
-        self.thread_list = []
-        self.queue = Queue.Queue(pool_size)
-        self.action_lock = threading.Lock()
-        self._initThreads()
 
-    def _initThreads(self):
-        self.action_lock.acquire()
-        for i in range(0, self.pool_size):
-            thr = ThreadPoolTask(self.queue, "Thread " + str(i))
-            self.thread_list.append(thr)
-        for thr in self.thread_list:
-            thr.start()
-        self.action_lock.release()
-
-    def _removeDeadThreads(self):
-        for thr in self.thread_list:
-            if thr.isKilled():
-                self.thread_list.remove(thr)
-                del thr
-
-    def delThreads(self, num):
-        try:
-            self.action_lock.acquire()
-            if self.thread_list == []:
-                return
-            for thr in self.thread_list:
-                if num > 0:
-                    thr.stop()
-                    num -= 1
-            self._removeDeadThreads()
-        finally:
-            self.action_lock.release()
-
-    def addThreads(self, num):
-        try:
-            self.action_lock.acquire()
-            self._removeDeadThreads()
-            for cpt in range(num):
-                thr = ThreadPoolTask(self.queue, "new Thread " + str(cpt))
-                thr.start()
-                self.thread_list.append(thr)
-        except:
-            pass
-        finally:
-            self.action_lock.release()
-
-    def stopAll(self):
-        for thr in self.thread_list:
-            thr.stop()
-
-    def waitAndStopAll(self):
-        for thr in self.thread_list:
-            thr.waitAndStop()
-
-    def joinAll(self):
-        for thr in self.thread_list:
-            thr.join()
-
-    def countThreads(self):
-        try:
-            self.action_lock.acquire()
-            return len(self.thread_list)
-        finally:
-            self.action_lock.release()
- 
-    def addTask(self, callback, args):
-        try:
-            self.action_lock.acquire()
-            self._removeDeadThreads()
-            if self.thread_list == []:
-                return
-            self.queue.put((callback, args))
-        finally:
-            self.action_lock.release()
-def p():
-    print 'hello'
+    def add_task(self, func, *args, **kargs):
+        """Add a task to the queue"""
+        self.tasks.put((func, args, kargs))
+    
+    def wait_completion(self):
+        """Wait for completion of all the tasks in the queue"""
+        self.tasks.join()
     
 if __name__ == "__main__":
-    
-    t = ThreadPool(3)
-    t.addTask(p, [])
-    t.addTask(p,[])
-    
+    pass
     
 
     

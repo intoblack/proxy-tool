@@ -92,7 +92,20 @@ def read_file_strip(filepath):
 def read_file_line_format(filepath , formatfunction):
     return [formatfunction(line) for line in _read(filepath)]    
 
-
+def file_list(filedir,_level=0):
+    filepath = []
+    if os.path.isdir(filedir):
+        item = (filedir, 'd',_level)
+        filepath.append(item)
+        for f in os.listdir(filedir):
+            f = os.path.join(filedir, f)
+            filepath.extend(file_list(f,_level+1))
+    elif os.path.isfile(filedir):
+        item = (filedir, 'f' ,_level)
+        filepath.append(item)
+    else:
+        return []
+    return filepath
 
 if __name__ == "__main__":
     contents = read_file_strip("/home/lixuze/result")
