@@ -83,10 +83,8 @@ class Crawler(threading.Thread):
                 ProxyData.getInstance().put(proxydata)
                 _level = 0 
             link_list = self.get_link(html,_level,_url)
-            print _url
             for  link in link_list:
                 if not UrlPool.getInstance().exist(link[0]):
-                    print link
                     TaskQueue.getInstance().put(link)
                                   
             

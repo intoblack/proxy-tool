@@ -68,7 +68,9 @@ class ProxySave(threading.Thread):
 
     
     def save_data(self,data):
-        util.append_write(self.savepath, util.make_contents(data))
+        if data:
+            if isinstance(data, list):
+                util.append_write(self.savepath, util.make_contents(data))
     
     def run(self):
         while True:
