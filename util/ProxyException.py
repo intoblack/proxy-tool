@@ -31,6 +31,8 @@ class DataIsEmptyException(IException):
 class DataDictPatternException(IException):
     pass
 
+class NoKnowAboutException(IException):
+    pass
 
 if __name__ == "__main__":
     try:

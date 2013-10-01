@@ -2,7 +2,8 @@
 
 import os
 from util.ProxyException import NoFilePathException, NoDirPathException,\
-    DataIsEmptyException,DataDictPatternException
+    DataIsEmptyException,DataDictPatternException, NoKnowAboutException
+import shutil
 
 #文件操作类
 #    
@@ -69,7 +70,7 @@ def make_dict_data(pattern,dictdata):
         restr = ''
         try:
             restr = pattern % dictdata
-        except Exception,e:
+        except Exception:
             raise DataDictPatternException,pattern
         return restr
     else:
@@ -106,6 +107,23 @@ def file_list(filedir,_level=0):
     else:
         return []
     return filepath
+
+def copy_path(src , dst , ingore = None):
+    if  os.path.exists(src):
+        if os.path.isfile(src) :
+            if os.path.isfile(dst):
+                shutil.copy(src, dst)
+            else:
+                raise NoFilePathException,dst
+        elif os.path.isdir(src):
+            if os.path.isdir(dst):
+                shutil.copy(src,dst,ingore)
+            else:
+                raise NoDirPathException,dst
+        else:
+            raise NoKnowAboutException
+    else:
+        raise  NoFilePathException,src
 
 if __name__ == "__main__":
     contents = read_file_strip("/home/lixuze/result")
