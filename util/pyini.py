@@ -13,8 +13,21 @@ class NoOpinionName(Exception):
 class SectionPatternException(Exception):
     pass
 
-class opinion(dict):
+class PatternException(Exception):
     pass
+
+class opinion():
+    __opinion = ''
+    __value = ''
+    __coment = ''
+    
+    def __init__(self , key , value , comment = ''):
+        self.__opinion = key
+        self.__value = value
+        self.__coment = comment 
+        
+    def __str__(self):
+        return '%s=%s' % (self.__opinion , self.__value)
 
 class comment():
     
@@ -26,7 +39,7 @@ class comment():
         
 
 class Section():
-    __data = {}
+    __opinions = {}
     __name = ''
     
     
@@ -40,17 +53,32 @@ class Section():
             raise NoOpinionName,key
     
             
+
+class Config():
+    __data = {}
+    
+    def add_opinion(self,sectionname , key , value):
+        if not self.__data.has_key(sectionname):
+            self.__data[sectionname] = {}
+        self.__data[sectionname][key] = value
+    
+    def __str__(self):
+        _msg = ''
+        for _sec,_opi in self.__data.items():
+            _msg = '%s[%s]\n' % (_msg,_sec)
+            for _key,_val in _opi.items():
+                _msg = _msg + '%s=%s\n' % (_key,_val)
+        return _msg
     
 
-
-class Config(object):
+class PyIni(object):
     
     __path = None
     __content = []
-    __config = {}
+    _config = Config()
     __load = False
     __comments = []
-    __section_pattern = re.compile('[\u4e00-\u9fa5a-zA-Z0-9_ ]', re.IGNORECASE)
+    __section_pattern = re.compile('\\[[\u4e00-\u9fa5a-zA-Z0-9_ ]+\\]', re.IGNORECASE)
     
     
     
@@ -58,6 +86,8 @@ class Config(object):
         if not (filepath and os.path.exists(filepath) and os.path.isfile(filepath)):
             raise NoFilePathORNotExist,filepath
         self.__path = filepath
+        self.__read()
+        self.__parser()
         
         
     
@@ -78,13 +108,20 @@ class Config(object):
                 elif line.startswith('[') and line.endswith(']'):
                     section_match = self.__section_pattern.match(line)
                     if section_match:
-                        _sectionname = section_match[1:-1]
+                        _sectionname = section_match.group()[1:-1]
                     else:
                         raise SectionPatternException,line
                 else:
                     opinionArry = line.split('=')
                     if opinionArry and len(opinionArry) == 2:
-                        pass
+                        opinion(opinionArry[0], opinionArry[1])
+                        self._config.add_opinion(_sectionname,opinionArry[0], opinionArry[1])
+                    else:
+                        raise PatternException,line
+        return self._config
+                        
+                    
+                        
                         
                     
                     
@@ -97,5 +134,7 @@ class Config(object):
             return True
         return False
 if __name__ == "__main__":
-    print '[az]'[1:-1]
+    ini = PyIni('/home/lixuze/config.ini')
+    print ini._config
+    
             
