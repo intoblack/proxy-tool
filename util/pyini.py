@@ -2,12 +2,15 @@
 #!/usr/bin/env python
 
 import os
-
+import re
 
 class NoFilePathORNotExist(Exception):
     pass
 
 class NoOpinionName(Exception):
+    pass
+
+class SectionPatternException(Exception):
     pass
 
 class opinion(dict):
@@ -46,6 +49,9 @@ class Config(object):
     __content = []
     __config = {}
     __load = False
+    __comments = []
+    __section_pattern = re.compile('[\u4e00-\u9fa5a-zA-Z0-9_ ]', re.IGNORECASE)
+    
     
     
     def __init__(self , filepath ,comment = '#' , config_split = '='):
@@ -64,13 +70,32 @@ class Config(object):
     
     
     def __parser(self):
+        _sectionname = ''
         for line in self.__content:
             if not self.__empty(line):
                 if line.startswith('#'):
-                    pass
+                    self.__comments.append(line)
+                elif line.startswith('[') and line.endswith(']'):
+                    section_match = self.__section_pattern.match(line)
+                    if section_match:
+                        _sectionname = section_match[1:-1]
+                    else:
+                        raise SectionPatternException,line
+                else:
+                    opinionArry = line.split('=')
+                    if opinionArry and len(opinionArry) == 2:
+                        pass
+                        
+                    
+                    
+                    
+                    
+                
     
     def __empty(self ,  line):
         if not line or line.strip() == '':
             return True
         return False
+if __name__ == "__main__":
+    print '[az]'[1:-1]
             
