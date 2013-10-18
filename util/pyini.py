@@ -90,11 +90,27 @@ class Config():
             pass
         return _value
     
+    def get_boolean_value(self , sectionname , key):
+        value = self.get_value(sectionname, key)
+        if value.lower() == 'false':
+            return False
+        elif value.lower() == 'true':
+            return True
+        else:
+            raise TypeError,value
     
-        
+    def get_long_value(self , sectionname , key):
+        return long(self.get_value(sectionname, key))
     
-        
-            
+    
+    def get_int_value(self ,sectionname , key):
+        return int(self.get_value(sectionname, key))
+    
+    
+    
+    def get_string_value(self ,sectionname , key):
+        return self.get_value(sectionname, key)
+           
     
     def __str__(self):
         _msg = ''
@@ -174,6 +190,6 @@ class PyIni(object):
         return False
 if __name__ == "__main__":
     ini = PyIni('/home/lixuze/config.ini')
-    print ini._config.get_section_opinion('avc')
+    print long(ini._config.get_section_opinion('avc'))
     
             
