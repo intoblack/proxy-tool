@@ -16,18 +16,21 @@ class SectionPatternException(Exception):
 class PatternException(Exception):
     pass
 
+class NoSectionNameException(Exception):
+    pass
+
+class NoValueNameException(Exception):
+    pass
+
 class opinion():
-    __opinion = ''
-    __value = ''
-    __coment = ''
     
     def __init__(self , key , value , comment = ''):
-        self.__opinion = key
-        self.__value = value
-        self.__coment = comment 
+        self._opinion = key
+        self._value = value
+        self._comment = comment 
         
     def __str__(self):
-        return '%s=%s' % (self.__opinion , self.__value)
+        return '%s=%s' % (self._opinion , self._value)
 
 class comment():
     
@@ -62,12 +65,46 @@ class Config():
             self.__data[sectionname] = {}
         self.__data[sectionname][key] = value
     
+    def get_value(self,sectionname , key):
+        if self.__data.has_key(sectionname):
+            if self.__data[sectionname].has_key(key):
+                return self.__data[sectionname][key]._value
+            else:
+                raise NoValueNameException,key
+        else:
+            raise NoSectionNameException,sectionname
+    
+    def get_sections(self):
+        return self.__data.keys()
+    
+    def get_section_opinion(self ,section):
+        if self.__data.has_key(section):
+            return self.__data[section].keys()
+        raise NoSectionNameException,section
+    
+    def get_default_value(self , sectionname,value,default = None):
+        _value = default 
+        try:
+            _value = self.get_value(sectionname,value)
+        except Exception,_:
+            pass
+        return _value
+    
+    
+        
+    
+        
+            
+    
     def __str__(self):
         _msg = ''
         for _sec,_opi in self.__data.items():
             _msg = '%s[%s]\n' % (_msg,_sec)
             for _key,_val in _opi.items():
-                _msg = _msg + '%s=%s\n' % (_key,_val)
+                if _val != '' :
+                    _msg = _msg + '%s=%s ; %s\n' % (_val._opinion,_val._value , _val._comment)
+                else:
+                    _msg = _msg + '%s=%s\n' % (_val._opinion,_val._value )
         return _msg
     
 
@@ -103,7 +140,7 @@ class PyIni(object):
         _sectionname = ''
         for line in self.__content:
             if not self.__empty(line):
-                if line.startswith('#'):
+                if line.startswith(';'):
                     self.__comments.append(line)
                 elif line.startswith('[') and line.endswith(']'):
                     section_match = self.__section_pattern.match(line)
@@ -112,12 +149,14 @@ class PyIni(object):
                     else:
                         raise SectionPatternException,line
                 else:
-                    opinionArry = line.split('=')
-                    if opinionArry and len(opinionArry) == 2:
-                        opinion(opinionArry[0], opinionArry[1])
-                        self._config.add_opinion(_sectionname,opinionArry[0], opinionArry[1])
-                    else:
-                        raise PatternException,line
+                    lineArry = line.split(';')
+                    comment = ''
+                    if len(lineArry) > 1:
+                        comment = ''.join(lineArry[1:])
+                    lineArry[0] = lineArry[0].strip()
+                    opinionArry = lineArry[0].split('=')
+                    op = opinion(opinionArry[0].strip(), opinionArry[1].strip(),comment)
+                    self._config.add_opinion(_sectionname,opinionArry[0], op)
         return self._config
                         
                     
@@ -135,6 +174,6 @@ class PyIni(object):
         return False
 if __name__ == "__main__":
     ini = PyIni('/home/lixuze/config.ini')
-    print ini._config
+    print ini._config.get_section_opinion('avc')
     
             
