@@ -3,7 +3,10 @@
 
 import os
 import re
-
+'''
+python ini 文件解析
+作者 ; 李
+'''
 class NoFilePathORNotExist(Exception):
     pass
 
@@ -66,6 +69,7 @@ class Config():
         self.__data[sectionname][key] = value
     
     def get_value(self,sectionname , key):
+        key = str(key)
         if self.__data.has_key(sectionname):
             if self.__data[sectionname].has_key(key):
                 return self.__data[sectionname][key]._value
@@ -90,7 +94,7 @@ class Config():
             pass
         return _value
     
-    def get_boolean_value(self , sectionname , key):
+    def get_boolean_value(self ,  key , sectionname = ''):
         value = self.get_value(sectionname, key)
         if value.lower() == 'false':
             return False
@@ -99,16 +103,16 @@ class Config():
         else:
             raise TypeError,value
     
-    def get_long_value(self , sectionname , key):
+    def get_long_value(self ,  key , sectionname= ''):
         return long(self.get_value(sectionname, key))
     
     
-    def get_int_value(self ,sectionname , key):
+    def get_int_value(self, key  ,sectionname = ''):
         return int(self.get_value(sectionname, key))
     
     
     
-    def get_string_value(self ,sectionname , key):
+    def get_string_value(self , key ,sectionname = '' ):
         return self.get_value(sectionname, key)
            
     
@@ -174,15 +178,7 @@ class PyIni(object):
                     op = opinion(opinionArry[0].strip(), opinionArry[1].strip(),comment)
                     self._config.add_opinion(_sectionname,opinionArry[0], op)
         return self._config
-                        
-                    
-                        
-                        
-                    
-                    
-                    
-                    
-                
+                            
     
     def __empty(self ,  line):
         if not line or line.strip() == '':
@@ -190,6 +186,6 @@ class PyIni(object):
         return False
 if __name__ == "__main__":
     ini = PyIni('/home/lixuze/config.ini')
-    print long(ini._config.get_section_opinion('avc'))
+    print ini._config.get_string_value(9,'avc')
     
             
