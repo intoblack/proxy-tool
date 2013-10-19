@@ -69,7 +69,10 @@ class Config():
         self.__data[sectionname][key] = value
     
     def get_value(self,sectionname , key):
-        key = str(key)
+        if sectionname or key:
+            raise  TypeError,'sectionname = %s , key = %s' % (sectionname , key)
+        sectionname = '%s' % sectionname
+        key = '%s' % key
         if self.__data.has_key(sectionname):
             if self.__data[sectionname].has_key(key):
                 return self.__data[sectionname][key]._value
