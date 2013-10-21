@@ -1,9 +1,6 @@
 #coding=utf-8
 #!/usr/bin/env python
 
-import threading
-import Queue
-import sys
 
 
 
@@ -12,8 +9,8 @@ if sys.version_info[0] > 2:
     import Queue
 else:
     import Queue as queue
-import threading
 from collections import deque
+import threading
 
 class Worker(threading.Thread):
     """Thread executing tasks from a given tasks queue"""
@@ -72,7 +69,7 @@ class ThreadPool:
             try: 
                 iter(num_threads)
                 num_threads = deque(num_threads)
-            except TypeError as te:
+            except TypeError as _:
                 print(num_threads, ' is not iterable')
                 raise
         pool_size = len(num_threads)

@@ -1,9 +1,10 @@
 #coding=utf-8
 
 import os
-from util.ProxyException import NoFilePathException, NoDirPathException,\
+from ProxyException import NoFilePathException, NoDirPathException,\
     DataIsEmptyException,DataDictPatternException, NoKnowAboutException
 import shutil
+from Crypto.Util.py21compat import isinstance
 
 #文件操作类
 #    
@@ -47,6 +48,14 @@ def _write(path,contents,mode):
     
 def append_write(path, contents):
     _write(path, contents, 'a')
+    
+
+def appen_write(path , contents):
+    if isinstance(contents, list):
+        __line = '\n'.join(contents)
+    else:
+        __line = contents 
+    _write(path, __line, 'a')  
     
 def write_file(path,contents):
     if len(contents) ==0 or contents == None:
