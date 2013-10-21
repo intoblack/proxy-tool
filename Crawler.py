@@ -15,6 +15,9 @@ import time
 class Crawler(threading.Thread):
     proxyregx = re.compile("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(<SCRIPT type=text/javascript>document.write\(\":\"(\+[a-z]?)+\)</SCRIPT>|:[0-9]{1,}){1}")
     alive = True
+    
+    __filter = []
+    __start_url = []
 
 
     def __init__(self , level = 1 , retrycount = 300 ):
