@@ -1,8 +1,9 @@
 #coding=gbk
 
-from Crawler import Crawler
+
 import time
-from ProxySpider import BaiduSeed 
+from Crawler import Crawler
+from starturl import BaiduSeed 
 from ProxyData import ProxySave
 from UrlQueue import TaskQueue
 

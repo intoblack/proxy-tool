@@ -1,15 +1,12 @@
-'''
-Created on 2013-6-26
+#coding=utf-8
 
-@author: lixuze
-'''
 from Queue import LifoQueue
 import threading
 
 
 class UrlPool(object):
     '''
-    classdocs
+
     '''
     URL_DICT = {}
     __instance = None
@@ -33,14 +30,26 @@ class UrlPool(object):
     
     
     def put_url(self , url):
+        
         if not self.URL_DICT.has_key(url):
             self.URL_DICT[url] = 1
     
     def print_all_url(self):
         for _key , _val in self.URL_DICT.items():
             print '%s\t\t%s' % (_key,_val)
+    
+    
+    
+    def __str__(self, *args, **kwargs):
+        '''
+        print 函数
+        '''
+        msg = []
+        for _key , _val in self.URL_DICT.items():
+            msg.append('%s\t\t%s')
+        return '\n'.join(msg)
             
-class mqueue(LifoQueue):
+class MQueue(LifoQueue):
     
     def _put(self, item):
         if isinstance(item, list):

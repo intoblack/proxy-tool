@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: gbk -*-
 
-import urllib2
+
+from util import util
 from urlpool import UrlPool 
 from UrlQueue import TaskQueue
 from BeautifulSoup import BeautifulSoup
@@ -22,8 +23,9 @@ class Crawler(threading.Thread):
         self.initempty = retrycount
         self.emptycount = retrycount
     
-    def downloadhtml(self, url , timeout=5 , coding = 'gbk'):
-        html = urllib2.urlopen(url=url , timeout = timeout).read().decode(coding, 'ignore')
+    def down_load_html(self, url , timeout=5 , coding = 'gbk'):
+        html = util.get_html_string(baseurl = url)
+#        html = urllib2.urlopen(url=url , timeout = timeout).read().decode(coding, 'ignore')
         return html
     
 
@@ -73,7 +75,7 @@ class Crawler(threading.Thread):
                 continue
             UrlPool.getInstance().put_url(_url)
             try:
-                html = self.downloadhtml(_url,coding="gb2312")
+                html = self.down_load_html(_url,coding="gb2312")
             except Exception,e:
                 print e
                 continue   
